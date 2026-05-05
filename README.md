@@ -1,6 +1,6 @@
 # 🚖 Taxi Microservices Platform
 
-> 🧩 Масштабируемая платформа такси на микросервисах с динамическим ценообразованием, асинхронными уведомлениями и полной контейнеризацией.
+> Масштабируемая платформа такси на микросервисах с динамическим ценообразованием, асинхронными уведомлениями и полной контейнеризацией.
 
 [![Build & Test](https://github.com/yourname/taxi-microservices/actions/workflows/ci.yml/badge.svg)](https://github.com/AelinZV/TAXI_Service/actions/runs/25368121080)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)

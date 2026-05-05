@@ -29,7 +29,7 @@ jobs:
 
       - name: Ожидание готовности микросервисов
         run: |
-          echo "⏳ Ожидаем старта сервисов (макс. 5 минут)..."
+          echo " Ожидаем старта сервисов (макс. 5 минут)..."
 
           MAX_ATTEMPTS=60
           SLEEP_SECONDS=5
@@ -49,7 +49,7 @@ jobs:
 
             # Показываем прогресс, но только каждые 5 попыток, чтобы не спамить лог
             if (( attempt % 5 == 0 )); then
-              echo "⏳ Попытка $attempt/$MAX_ATTEMPTS | user: $CODE_8081 | trip: $CODE_8082 | notif: $CODE_8083"
+              echo " Попытка $attempt/$MAX_ATTEMPTS | user: $CODE_8081 | trip: $CODE_8082 | notif: $CODE_8083"
             fi
 
             # Ждём перед следующей проверкой
