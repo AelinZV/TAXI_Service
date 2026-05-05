@@ -2,15 +2,15 @@ name: Сборка и интеграционное тестирование
 
 # Запускать при пушах и пулл-реквестах в main/master
 on:
-push:
-branches: [ main, master ]
-pull_request:
-branches: [ main, master ]
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
-# Задача: сборка, запуск и проверка работы системы
-integration-test:
-runs-on: ubuntu-latest
+  # Задача: сборка, запуск и проверка работы системы
+  integration-test:
+    runs-on: ubuntu-latest
 
     steps:
       # 1. Скачиваем код репозитория
@@ -35,7 +35,7 @@ runs-on: ubuntu-latest
       # 5. Ждём, пока все сервисы ответят на healthcheck
       - name: Ожидание готовности сервисов
         run: |
-          echo "⏳ Ожидаем запуска PostgreSQL, Redis и микросервисов..."
+          echo " Ожидаем запуска PostgreSQL, Redis и микросервисов..."
           for i in {1..60}; do
             if curl -sf http://localhost:8081/actuator/health && \
                curl -sf http://localhost:8082/actuator/health && \
@@ -43,7 +43,7 @@ runs-on: ubuntu-latest
               echo "✅ Все сервисы успешно запустились!"
               break
             fi
-            echo "⏳ Попытка $i/60. Ждём 5 секунд..."
+            echo " Попытка $i/60. Ждём 5 секунд..."
             sleep 5
           done
 
@@ -51,7 +51,7 @@ runs-on: ubuntu-latest
       - name: Прогон интеграционного демо-скрипта
         run: |
           chmod +x demo.sh
-          echo "🚀 Запуск демонстрационного сценария..."
+          echo " Запуск демонстрационного сценария..."
           ./demo.sh
 
       # 7. Если что-то упало — сохраняем логи Docker для отладки
