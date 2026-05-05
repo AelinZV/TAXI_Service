@@ -17,7 +17,6 @@ log_success(){ echo -e "${GREEN}✅ $1${NC}"; }
 log_warn()  { echo -e "${YELLOW}⚠️  $1${NC}"; }
 log_error() { echo -e "${RED}❌ $1${NC}" >&2; }
 
-# Форматирование JSON (jq -> python3 -> cat)
 fmt_json() { jq --color-output . 2>/dev/null || python3 -m json.tool 2>/dev/null || cat; }
 
 # Проверка ответа API на ошибки
@@ -58,8 +57,7 @@ log_info " Будут созданы уникальные пользовател
 echo -e "\n${BLUE}🚖 Taxi Microservices Demo${NC}"
 echo "================================"
 
-# 1️⃣ Регистрация пассажира
-echo -e "\n${YELLOW}1️⃣  Регистрация пассажира...${NC}"
+echo -e "\n${YELLOW} 1  Регистрация пассажира...${NC}"
 P_RESP=$(curl -s -X POST "${API_USER}/auth/register/passenger" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"${P_NAME}\",\"email\":\"${P_EMAIL}\",\"phone\":\"${P_PHONE}\",\"password\":\"demo123\"}")
@@ -68,8 +66,7 @@ P_ID=$(get_id "$P_RESP")
 echo "$P_RESP" | fmt_json
 log_success "Пассажир создан (ID: $P_ID)"
 
-# 2️⃣ Регистрация водителя
-echo -e "\n${YELLOW}2️⃣  Регистрация водителя...${NC}"
+echo -e "\n${YELLOW} 2  Регистрация водителя...${NC}"
 D_RESP=$(curl -s -X POST "${API_USER}/auth/register/driver" \
   -H "Content-Type: application/json" \
   -d "{\"name\":\"${D_NAME}\",\"email\":\"${D_EMAIL}\",\"phone\":\"${D_PHONE}\",\"password\":\"demo123\",\"licenseNumber\":\"${D_LIC}\"}")
@@ -78,8 +75,7 @@ D_ID=$(get_id "$D_RESP")
 echo "$D_RESP" | fmt_json
 log_success "Водитель создан (ID: $D_ID)"
 
-# 3️⃣ Создание поездки
-echo -e "\n${YELLOW}3️⃣  Создание поездки...${NC}"
+echo -e "\n${YELLOW} 3  Создание поездки...${NC}"
 T_RESP=$(curl -s -X POST "${API_TRIP}/trips" \
   -H "Content-Type: application/json" \
   -d "{\"passengerId\":${P_ID},\"origin\":\"Airport\",\"destination\":\"Hotel Central\",\"distanceKm\":12.5}")
@@ -88,24 +84,20 @@ T_ID=$(get_id "$T_RESP")
 echo "$T_RESP" | fmt_json
 log_success "Поездка создана (ID: $T_ID)"
 
-# 4️⃣ Статистика
-echo -e "\n${YELLOW}4️⃣  Статистика за сегодня...${NC}"
+echo -e "\n${YELLOW} 4  Статистика за сегодня...${NC}"
 curl -s "${API_TRIP}/trips/stats" | fmt_json
 
-# 5️⃣ Завершение поездки
-echo -e "\n${YELLOW}5️⃣  Завершение поездки #${T_ID}...${NC}"
+echo -e "\n${YELLOW} 5  Завершение поездки #${T_ID}...${NC}"
 curl -s -X PATCH "${API_TRIP}/trips/${T_ID}/status?status=COMPLETED" | fmt_json
 log_success "Поездка завершена"
 
-# 6️⃣ Оценка
-echo -e "\n${YELLOW}6️⃣  Оценка поездки (5 звёзд)...${NC}"
+echo -e "\n${YELLOW} 6 Оценка поездки (5 звёзд)...${NC}"
 curl -s -X PATCH "${API_TRIP}/trips/${T_ID}/rating?rating=5" | fmt_json
 log_success "Поездка оценена"
 
-# 7️⃣ Уведомления
-echo -e "\n${YELLOW}7️⃣  Проверка задач уведомлений...${NC}"
+echo -e "\n${YELLOW} 7️  Проверка задач уведомлений...${NC}"
 curl -s "${API_NOTIF}/notifications?trip_id=${T_ID}" | fmt_json
 
-# 🏁 Финал
-echo -e "\n${GREEN}🎉 Демонстрация успешно завершена!${NC}"
-echo -e "${BLUE}📊 Создано: Пассажир #${P_ID} | Водитель #${D_ID} | Поездка #${T_ID}${NC}"
+# Финал
+echo -e "\n${GREEN} Демонстрация успешно завершена!${NC}"
+echo -e "${BLUE} Создано: Пассажир #${P_ID} | Водитель #${D_ID} | Поездка #${T_ID}${NC}"
