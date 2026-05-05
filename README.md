@@ -1,73 +1,67 @@
-name: Сборка и интеграционное тестирование
+# 🚖 Taxi Microservices Platform
 
-# Запускать при пушах и пулл-реквестах в main/master
-on:
-push:
-branches: [ main, master ]
-pull_request:
-branches: [ main, master ]
+> 🧩 Масштабируемая платформа такси на микросервисах с динамическим ценообразованием, асинхронными уведомлениями и полной контейнеризацией.
 
-jobs:
-# Задача: сборка, запуск и проверка работы системы
-integration-test:
-runs-on: ubuntu-latest
+[![Build & Test](https://github.com/yourname/taxi-microservices/actions/workflows/ci.yml/badge.svg)](https://github.com/AelinZV/TAXI_Service/actions/runs/25368121080)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Java 17](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html)
+[![Spring Boot 3.2](https://img.shields.io/badge/Spring_Boot-3.2-green.svg)](https://spring.io/projects/spring-boot)
+[![Docker](https://img.shields.io/badge/Docker-✓-blue.svg)](https://www.docker.com/)
 
-    steps:
-      # 1. Скачиваем код репозитория
-      - name: Выгрузка исходного кода
-        uses: actions/checkout@v4
+---
 
-      # 2. Устанавливаем Java (нужна для Maven внутри Docker, если потребуется)
-      - name: Установка JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
+##  Возможности
 
-      # 3. Собираем Docker-образы без кэша (гарантирует чистую сборку)
-      - name: Сборка Docker-образов
-        run: docker compose build --no-cache
+### Бизнес-логика
+| Функция | Описание | Статус |
+|---------|----------|--------|
+|  Регистрация пользователей | Пассажиры и водители с валидацией уникальности | ✅ |
+|  Аутентификация | JWT-токены, разделение ролей (PASSENGER/DRIVER) | ✅ |
+|  Создание поездки | Атомарное назначение свободного водителя | ✅ |
+|  Динамическое ценообразование | Базовый тариф + surge pricing при нехватке водителей | ✅ |
+|  Рейтинг поездок | Оценка 1-5 звёзд после завершения | ✅ |
+|  Асинхронные уведомления | Воркер-пул с retry-логикой и graceful shutdown | ✅ |
+|  Статистика в реальном времени | Количество поездок, средняя цена, доступные водители | ✅ |
 
-      # 4. Запускаем все сервисы в фоновом режиме
-      - name: Запуск контейнеров
-        run: docker compose up -d
+### 🔧 Технические преимущества
+-  **Полная контейнеризация** — один `docker compose up` поднимает всю инфраструктуру
+- ️ **Идемпотентность** — демо-скрипт генерирует уникальные данные, можно запускать многократно
+-  **Интеграционное тестирование** — автоматический прогон сценария в CI/CD
+-  **Health checks** — мониторинг готовности сервисов через Spring Actuator
+-  **Безопасность** — CSRF отключён для API, CORS настроен для разработки
 
-      # 5. Ждём, пока все сервисы ответят на healthcheck
-      - name: Ожидание готовности сервисов
-        run: |
-          echo "⏳ Ожидаем запуска PostgreSQL, Redis и микросервисов..."
-          for i in {1..60}; do
-            if curl -sf http://localhost:8081/actuator/health && \
-               curl -sf http://localhost:8082/actuator/health && \
-               curl -sf http://localhost:8083/actuator/health; then
-              echo "✅ Все сервисы успешно запустились!"
-              break
-            fi
-            echo "⏳ Попытка $i/60. Ждём 5 секунд..."
-            sleep 5
-          done
+---
 
-      # 6. Запускаем ваш демо-скрипт как набор интеграционных тестов
-      - name: Прогон интеграционного демо-скрипта
-        run: |
-          chmod +x demo.sh
-          echo "🚀 Запуск демонстрационного сценария..."
-          ./demo.sh
 
-      # 7. Если что-то упало — сохраняем логи Docker для отладки
-      - name: Сохранение логов при ошибке
-        if: failure()
-        run: docker compose logs --no-color > ci-failure-logs.txt
+---
 
-      - name: Загрузка логов в артефакты
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-logs-on-failure
-          path: ci-failure-logs.txt
-          retention-days: 7
+##  Технологический стек
 
-      # 8. Очистка ресурсов в любом случае (успех или ошибка)
-      - name: Очистка контейнеров и томов
-        if: always()
-        run: docker compose down -v --remove-orphans
+| Категория | Технология | Версия | Назначение |
+|-----------|------------|--------|------------|
+| **Backend** | Spring Boot | 3.2.0 | Микросервисы, REST API |
+| **Язык** | Java | 17 | Основная реализация |
+| **Сборка** | Maven | 3.9 | Управление зависимостями |
+| **СУБД** | PostgreSQL | 15 | Реляционное хранение данных |
+| **Кэш** | Redis | 7 | TTL-кэш счётчиков |
+| **Контейнеры** | Docker + Compose | 24+ | Оркестрация инфраструктуры |
+| **Аутентификация** | JWT (jjwt) | 0.11.5 | Stateless-сессии |
+| **Мониторинг** | Spring Actuator | 3.2.0 | Health endpoints |
+| **Логирование** | SLF4J + Logback | 1.4.11 | Структурированные логи |
+| **CI/CD** | GitHub Actions | — | Автоматическая сборка и тесты |
+
+---
+
+## Быстрый старт
+
+### ▶️ Запуск за 3 команды
+
+```bash
+# 1. Клонировать репозиторий
+git clone https://github.com/yourname/taxi-microservices.git
+cd taxi-microservices
+
+# 2. Запустить всю инфраструктуру
+docker compose up --build
+
+# 3. Дождаться готовности (лог: "Started ...Application in X seconds")
