@@ -1,0 +1,15 @@
+server:
+  port: ${SERVER_PORT:8083}
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/taxi_db}
+    username: ${SPRING_DATASOURCE_USERNAME:taxi}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+
+worker:
+  thread-pool-size: 4
+  max-retries: 3

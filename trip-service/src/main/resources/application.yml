@@ -1,0 +1,26 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://postgres:5432/taxi_db}
+    username: ${SPRING_DATASOURCE_USERNAME:taxi}
+    password: ${SPRING_DATASOURCE_PASSWORD:secret}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  redis:
+    host: ${SPRING_DATA_REDIS_HOST:redis}
+    port: 6379
+
+app:
+  tariff-per-km: ${APP_TARIFF_PER_KM:15.0}
+  surge-threshold: ${APP_SURGE_THRESHOLD:3}
+  surge-multiplier: ${APP_SURGE_MULTIPLIER:1.5}
+
+# ✅ Исправлено: используем host.docker.internal для WSL2/Windows
+user-service:
+  url: ${USER_SERVICE_URL:http://host.docker.internal:8081}
+
+notification-service:
+  url: ${NOTIFICATION_SERVICE_URL:http://host.docker.internal:8083}

@@ -1,0 +1,91 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: taxi-db
+    environment:
+      POSTGRES_DB: taxi_db
+      POSTGRES_USER: taxi
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U taxi -d taxi_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: taxi-redis
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  user-service:
+    build: ./user-service
+    container_name: user-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taxi_db
+      SPRING_DATASOURCE_USERNAME: taxi
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATA_REDIS_HOST: redis
+      SERVER_PORT: 8081
+      JWT_SECRET: mySuperSecretKeyForJwtTokens123456789
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  trip-service:
+    build: ./trip-service
+    container_name: trip-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taxi_db
+      SPRING_DATASOURCE_USERNAME: taxi
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATA_REDIS_HOST: redis
+      USER_SERVICE_URL: http://user-service:8081
+      SERVER_PORT: 8082
+      JWT_SECRET: mySuperSecretKeyForJwtTokens123456789
+      APP_TARIFF_PER_KM: 15.0
+      APP_SURGE_THRESHOLD: 3
+      APP_SURGE_MULTIPLIER: 1.5
+    ports:
+      - "8082:8082"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      user-service:
+        condition: service_started
+
+  notification-service:
+    build: ./notification-service
+    container_name: notification-service
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/taxi_db
+      SPRING_DATASOURCE_USERNAME: taxi
+      SPRING_DATASOURCE_PASSWORD: secret
+      SPRING_DATA_REDIS_HOST: redis
+      SERVER_PORT: 8083
+    ports:
+      - "8083:8083"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  pgdata:
